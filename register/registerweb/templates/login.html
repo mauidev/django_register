@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Login Page</title>
+
+{% load staticfiles %}
+
+<link   type="text/css" href="{% static "registerweb/css/jquery-ui-1.8.9.custom.css" %}" rel="Stylesheet" />	
+<script type="text/javascript" src="{% static "registerweb/js/jquery-1.4.4.min.js" %}"></script>
+<script type="text/javascript" src="{% static "registerweb/js/jquery-ui-1.8.9.custom.min.js" %}"></script>
+<script type="text/javascript" src="{% static "registerweb/js/jquery.busy.min.js" %}" ></script>
+
+
+<style>
+  .title_underline {
+    border-bottom: 2px solid black;
+  }
+  
+  .error {
+    color: red;
+  }
+  
+  #main {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    text-align: left;
+    width: 500px;
+  }
+ 
+</style>
+
+<script>
+
+
+$(document).ready(function() {
+	 
+	 $('#submitButton').click(function() {
+		 
+		  $('#userError').hide();
+		  $('#passwordError').hide();
+		  $('#generalError').hide();
+		  
+ 		  		  		  
+		  if ($('#user').val() == '') {
+			  setUserFieldError('User is required.');			  
+			  return false;
+		   }
+		  		  
+		  if ($('#password').val() == '') {
+			  setPasswordFieldError("Password is required.");
+			  return false;
+		  }
+		  		  
+		  $.ajax({
+            type: 
+            	'POST',
+            url: 
+            	'/demo/api/v1/login',
+            data: 
+            	$('#loginForm').serialize(),
+            success: 
+            	function(data, status, xhr) {
+            	   obj = jQuery.parseJSON(data);
+            	   if(obj.redirect) {
+             	     window.location = obj.redirect;
+                   } else if(obj.error) {
+                     // handle error in page
+                     if(obj.fieldId == "generalError") {
+                    	setGeneralFieldError(obj.error); 
+                     }
+                   }
+                },
+            error: 
+            	function(xhr, textStatus, errorThrown) { 
+                  alert('ERROR: ' + xhr.statusText ); 
+                },
+            dataType: 'html'
+                  
+          });
+	      return false;
+	  });
+        
+	 
+});   
+
+
+function setUserFieldError(msg) {
+   $('#userErrorContent').html(msg);
+   $('#userError').show();
+   $('#user').focus();
+}
+
+function setGeneralFieldError(msg) {
+   $('#generalError').html(msg);
+   $('#generalError').show();
+   $('#user').focus();
+}
+
+function setPasswordFieldError(msg) {
+   $('#passwordErrorContent').html(msg);
+   $('#passwordError').show();	
+   $('#password').focus();
+}
+
+
+</script>
+    
+ 
+
+</head>
+
+
+<body>
+
+ <div id="main">
+  
+	  <div id="header">
+	    <h1 class="title_underline">Login</h1>
+	  </div>
+	 
+	  <form id="loginForm">
+	    <table>
+	      
+	      <tr>
+	        <td>User:</td><td><input name="user" id="user"/></td>
+	      </tr>
+	      <tr id="userError" style="disable:true;">
+		       <td colspan="2" class="error" id="userErrorContent"></td>
+		  </tr>
+	            
+	      <tr>
+	        <td>Password:</td><td><input name="password" id="password" type="password"/></td>
+	      </tr>
+	      <tr id="passwordError" style="disable:true;">
+		       <td colspan="2" class="error" id="passwordErrorContent"></td>
+		  </tr>
+		  
+	    </table>
+	    <br>
+	    <div id="generalError" class="error" style="disable:true"></div>
+	    <button id="submitButton">Login</button>
+	    <a href="/register/register">Register</a> for a new user.
+	  </form>
+   
+ </div>
+
+ 
+ 
+ 
+</body>
+</html>
