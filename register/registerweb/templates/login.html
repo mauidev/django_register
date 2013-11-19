@@ -43,12 +43,14 @@ $(document).ready(function() {
 		  $('#generalError').hide();
 		  
  		  		  		  
-		  if ($('#user').val() == '') {
+		  if ($('#user').val() == '') 
+		  {
 			  setUserFieldError('User is required.');			  
 			  return false;
-		   }
+		  }
 		  		  
-		  if ($('#password').val() == '') {
+		  if ($('#password').val() == '') 
+		  {
 			  setPasswordFieldError("Password is required.");
 			  return false;
 		  }
@@ -61,7 +63,8 @@ $(document).ready(function() {
             data: 
             	$('#loginForm').serialize(),
             success: 
-            	function(data, status, xhr) {
+            	function(data, status, xhr) 
+            	{
             	   obj = jQuery.parseJSON(data);
             	   if(obj.redirect) {
              	     window.location = obj.redirect;
@@ -73,7 +76,8 @@ $(document).ready(function() {
                    }
                 },
             error: 
-            	function(xhr, textStatus, errorThrown) { 
+            	function(xhr, textStatus, errorThrown) 
+            	{ 
                   alert('ERROR: ' + xhr.statusText ); 
                 },
             dataType: 'html'
@@ -86,22 +90,25 @@ $(document).ready(function() {
 });   
 
 
-function setUserFieldError(msg) {
-   $('#userErrorContent').html(msg);
-   $('#userError').show();
-   $('#user').focus();
+function setUserFieldError(msg) 
+{
+  $('#userErrorContent').html(msg);
+  $('#userError').show();
+  $('#user').focus();
 }
 
-function setGeneralFieldError(msg) {
-   $('#generalError').html(msg);
-   $('#generalError').show();
-   $('#user').focus();
+function setGeneralFieldError(msg) 
+{
+  $('#generalError').html(msg);
+  $('#generalError').show();
+  $('#user').focus();
 }
 
-function setPasswordFieldError(msg) {
-   $('#passwordErrorContent').html(msg);
-   $('#passwordError').show();	
-   $('#password').focus();
+function setPasswordFieldError(msg) 
+{
+  $('#passwordErrorContent').html(msg);
+  $('#passwordError').show();	
+  $('#password').focus();
 }
 
 
@@ -124,24 +131,34 @@ function setPasswordFieldError(msg) {
 	    <table>
 	      
 	      <tr>
-	        <td>User:</td><td><input name="user" id="user"/></td>
+	            
+	            <td>User:</td>
+	            <td><input name="user" id="user"/></td>
+	            
 	      </tr>
 	      <tr id="userError" style="disable:true;">
-		       <td colspan="2" class="error" id="userErrorContent"></td>
+		        
+		        <td colspan="2" class="error" id="userErrorContent"></td>
+		        
 		  </tr>
-	            
 	      <tr>
-	        <td>Password:</td><td><input name="password" id="password" type="password"/></td>
+	            
+	            <td>Password:</td>
+	            <td><input name="password" id="password" type="password"/></td>
+	            
 	      </tr>
 	      <tr id="passwordError" style="disable:true;">
-		       <td colspan="2" class="error" id="passwordErrorContent"></td>
+		        
+		        <td colspan="2" class="error" id="passwordErrorContent"></td>
+		        
 		  </tr>
 		  
 	    </table>
+	    
 	    <br>
 	    <div id="generalError" class="error" style="disable:true"></div>
 	    <button id="submitButton">Login</button>
-	    <a href="/register/register">Register</a> for a new user.
+	    <a href="/demo/register">Register</a> for a new user.
 	  </form>
    
  </div>
