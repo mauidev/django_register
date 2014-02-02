@@ -61,7 +61,6 @@ class UserResource(APIView):
             print "record exists"
             return Response(msg,status=status.HTTP_400_BAD_REQUEST)  
         
-        #TODO: move this into a util method
         password = user_form.cleaned_data['password']
         salt = uuid.uuid4().hex
         hashed_password = hashlib.sha512(password + salt).hexdigest()
@@ -139,19 +138,30 @@ class LoginApi(APIView):
     
     def post(self, request):
         """
-          sale and encrypt password to create a hash
-          lookup from database
-          compare hash
-          if hash doesn't match or no user record, return an error
-          otherwise user is authenticated - update user's session in django
+          Authenticate a user. Compute a password hash and compare against
+          the hash in the database.
         """
+        user = None
+        try:
+            login_id = request.DATA['login_id']
+            user = User.objects.get(login_id__exact = login_id)
+        except User.DoesNotExist:
+            return self._invalid_user()
+       
+        salt = user.salt
+        password = request.DATA['password'] 
+        hashed_password = hashlib.sha512(password + salt).hexdigest()
+        if hashed_password != user.password:
+            return self._invalid_user()
+        
         data = {}
-        if request.DATA['user'] != 'bob':
-            data['error'] = "Invalid user or password."
-            data['fieldId'] = "generalError"
-            return Response(data)
-        else:
-            data['redirect'] = 'http://localhost:8000/demo/landing'
-            return Response(data)
+        data['redirect'] = 'http://localhost:8000/demo/landing'
+        return Response(data)
+    
+    def _invalid_user(self):
+        data = {}
+        data['error'] = "Invalid user or password."
+        data['fieldId'] = "generalError"
+        return Response(data)
                  
         
