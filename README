@@ -1,0 +1,11 @@
+
+How to run the application
+==========================================
+
+cd register
+manage.py runserver
+
+
+Point browser to localhost:8000/demo/login.
+
+
