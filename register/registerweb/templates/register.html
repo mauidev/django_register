@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<html ng-app='crudApp'>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>User Registration Page</title>
@@ -7,9 +7,8 @@
 {% load staticfiles %}
 
 <link   type="text/css" href="{% static "registerweb/css/jquery-ui-1.8.9.custom.css" %}" rel="Stylesheet" />	
+<script type="text/javascript" src="{% static "registerweb/js/angular.js" %}"></script>
 <script type="text/javascript" src="{% static "registerweb/js/jquery-1.4.4.min.js" %}"></script>
-<script type="text/javascript" src="{% static "registerweb/js/jquery-ui-1.8.9.custom.min.js" %}"></script>
-<script type="text/javascript" src="{% static "registerweb/js/jquery.busy.min.js" %}" ></script>
 
 
 <style>
@@ -31,28 +30,113 @@
  
 </style>
 
+ 
 <script>
 
+var app = angular.module('crudApp',[]);
 
-$(document).ready(function() {
-	 
-	 $('#submitButton').click(function() {
+app.controller('CrudController', function($scope,$http) {
 	
-	  });
-        
-	 
-});   
+	$scope.mode = 'add';
+
+	var user = {};
+	user.id = "";
+	user.loginId = "";
+	user.firstName = "";
+	user.lastName = "";
+	user.password = "";
+	user.retypepassword = "";
+	user.email = "";
+	
+    $scope.user = user;
+    
+	$scope.submit = function() {
+
+	  $scope.registerForm.submitClicked = true;
+	  
+	  //clear errors
+	  $scope.errorRetype = null;
+	  $scope.errorLoginId = null;
+	  $scope.errorEmail = null;
+	   
+	  // verify that the passwords match
+	  if($scope.user.password && $scope.user.retype) { 
+		  if($scope.user.password != $scope.user.retype) {
+		    $scope.errorRetype = 'Passwords do not match.';
+		    return;
+		  }  
+	  }
+	  
+	  if($scope.registerForm.$invalid) {
+		  alert('You have errors.');
+		  return;
+	  } 
+	  
+	  var postData = { login_id   : $scope.user.loginId,
+			           first_name : $scope.user.firstName,
+			           last_name  : $scope.user.lastName,
+			           password   : $scope.user.password,
+			           email      : $scope.user.email };
+	  
+	  var config =  { headers : {'Accept':'application/json',
+		                         'Content-Type':'application/x-www-form-urlencoded'}};
+			  
+	  if($scope.mode = 'add') {
+	    $scope.add(postData,config);
+	  } else if($scope.mode == 'edit') {
+		$scope.update(postData,config);
+	  }  
+	        
+	}; // submit function
+	  	
+	
+	$scope.add = function(postData,config) {
+			   
+	   $http.post('/demo/api/v1/users',jQuery.param(postData),config)
+		  
+	      .success(function(data,header,status,config) 
+	      {
+		      alert('User has been added.');
+		      $scope.id = data.id;
+		      $scope.mode = 'edit';	 
+		      $scope.submitClicked = false;
+		  })
+		  .error(function(data,header,status,config) 
+		  {
+		      alert('An error has occurred.');
+		      if(data.status == 'fielderrors') {
+		    	  for(var field in data.errors) {
+		      	      if(field == 'loginId' && data.errors[field] == 'duplicate') {
+		      			$scope.errorLoginId = 'Login Id already in use.'; 
+		    		  }
+		      	      if(field == 'email' && data.errors[field] == 'duplicate') {
+		      			$scope.errorEmail = 'Email already in use.'; 
+		    		  }
+		      	  }
+		      }
+				  
+	      });
+	};
+	
+	
+	$scope.update = function(postData,config) {
+		// put
+		
+	};
+	
+	
+}); //controller
 
 
 
 </script>
-    
- 
 
 </head>
 
 
-<body>
+<body ng-controller='CrudController'>
+
+{% verbatim %}
 
  <div id="main">
   
@@ -60,51 +144,106 @@ $(document).ready(function() {
 	    <h1 class="title_underline">User Registration</h1>
 	  </div>
 	 
-	  <form id="registerForm">
-	    <table>
+	 <form name="registerForm" novalidate ng-submit="submit();">
+	 
+	  <table>
 	      
 	      <tr>
-	         <td style="text-align:right">Login Id:</td><td><input name="user" id="user"/></td>
+	         <td style="text-align:right">Login Id:</td>
+	         <td><input name="loginId" 
+	                    type="text" 
+	                    ng-model="user.loginId" 
+	                    required/></td>
 	      </tr>
-	      <tr id="userError" style="disable:true;">
-		     <td colspan="2" class="error" id="userErrorContent"></td>
+	      
+	      
+	      <tr ng-show="registerForm.submitClicked && registerForm.loginId.$error.required">
+		    <td></td><td class="error">Field is required.</td>
 		  </tr>
-	            
+		  <tr ng-show="registerForm.submitClicked && errorLoginId">
+		    <td></td><td class="error">{{errorLoginId}}</td>
+		  </tr>
+		   	            
 	      <tr>
-	         <td style="text-align:right">First Name:</td><td><input name="user" id="user"/></td>
+	         <td style="text-align:right">First Name:</td>
+	         <td><input name="firstName" 
+	                    type="text" 
+	                    ng-model="user.firstName" 
+	                    required/></td>
 	      </tr>
+	      <tr ng-show="registerForm.submitClicked && registerForm.firstName.$error.required">
+		    <td></td><td class="error">Field is required.</td>
+		  </tr>
 	      
 	      <tr>
-	        <td style="text-align:right">Last Name:</td><td><input name="user" id="user"/></td>
+	        <td style="text-align:right">Last Name:</td>
+	        <td><input name="lastName" 
+	                   type="text" 
+	                   ng-model="user.lastName"
+	                   required /></td>
 	      </tr>
 	            
+	      <tr ng-show="registerForm.submitClicked && registerForm.lastName.$error.required">
+		    <td></td><td class="error">Field is required.</td>
+		  </tr>
+		         
 	      <tr>
-	        <td style="text-align:right">Password:</td><td><input name="password" id="password" type="password"/></td>
+	        <td style="text-align:right">Password:</td>
+	        <td><input name="password" 
+	                   type="password"
+	                   ng-model="user.password"
+	                   required /></td>
 	      </tr>
 	      
-	      <tr id="passwordError" style="disable:true;">
-		       <td colspan="2" class="error" id="passwordErrorContent"></td>
+	      <tr ng-show="registerForm.submitClicked && registerForm.password.$error.required">
+		    <td></td><td class="error">Field is required.</td>
 		  </tr>
 		  
 		  <tr>
-	        <td style="text-align:right">Re-Type Password:</td><td><input name="user" id="user"/></td>
+	        <td style="text-align:right">Re-Type Password:</td>
+	        <td><input name="retype" 
+	                   type="password"
+	                   ng-model="user.retype"
+	                   required /></td>
 	      </tr>
 	      
+	      <tr ng-show="registerForm.submitClicked && registerForm.retype.$error.required">
+		    <td></td><td class="error">Field is required.</td>
+		  </tr>
+		  
+		  <tr ng-show="registerForm.submitClicked && errorRetype">
+		    <td></td><td class="error">{{errorRetype}}</td>
+		  </tr>
+		  
 	      <tr>
-	        <td style="text-align:right">Email:</td><td><input name="user" id="user"/></td>
+	        <td style="text-align:right">Email:</td>
+	        <td><input name="email" 
+	                   type="email"
+	                   ng-model="user.email"
+	                   required /></td>
 	      </tr>
 	      
+		  <tr ng-show="registerForm.submitClicked && registerForm.email.$error.required">
+		    <td></td><td class="error">Field is required.</td>
+		  </tr>
+		  <tr ng-show="registerForm.submitClicked && registerForm.email.$error.email">
+		    <td></td><td class="error">Email is invalid.</td>
+		  </tr>
+		  <tr ng-show="registerForm.submitClicked && errorEmail">
+		    <td></td><td class="error">{{errorEmail}}</td>
+		  </tr>
 		  
 	    </table>
-	    <br>
-	    <div id="generalError" class="error" style="disable:true"></div>
-	    <button id="submitButton">Submit</button>
 	    
+	     <button>Submit</button>
+	     
 	  </form>
-   
+	    
+	    
  </div>
 
  
+{% endverbatim %}    
  
  
 </body>

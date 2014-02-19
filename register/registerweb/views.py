@@ -53,13 +53,17 @@ class UserResource(APIView):
         user_form = UserForm(request.DATA)
         
         if not user_form.is_valid():
-            msg = {'status': 'error','errors':user_form.errors}
+            msg = {'status': 'fielderrors','errors':user_form.errors}
             return Response(msg,status=status.HTTP_400_BAD_REQUEST)
           
         if self._isLoginIdExists(request):
-            msg = {'status' : 'duplicate'}
-            print "record exists"
+            msg = {'status' : 'fielderrors', 'errors' : { 'loginId' : 'duplicate'}}
             return Response(msg,status=status.HTTP_400_BAD_REQUEST)  
+        
+        if self._isEmailExists(request):
+            msg = {'status' : 'fielderrors', 'errors' : { 'email' : 'duplicate'}}
+            return Response(msg,status=status.HTTP_400_BAD_REQUEST)  
+        
         
         password = user_form.cleaned_data['password']
         salt = uuid.uuid4().hex
@@ -88,7 +92,7 @@ class UserResource(APIView):
         """
         user_form = UserForm(request.DATA)
         if not user_form.is_valid():
-            msg = {'status': 'error','errors':user_form.errors}
+            msg = {'status': 'fielderrors','errors':user_form.errors}
             return Response(msg,status=status.HTTP_400_BAD_REQUEST)
         
         user = None
@@ -125,7 +129,14 @@ class UserResource(APIView):
         except User.DoesNotExist:
             return False  
         
-    
+    def _isEmailExists(self,request):
+        try:
+            myemail = request.DATA['email']
+            queryset = User.objects.filter(email=myemail)
+            if queryset:
+                return True
+        except User.DoesNotExist:
+            return False  
     
     
 class LoginApi(APIView):
