@@ -33,23 +33,31 @@
  
 <script>
 
+
+
 var app = angular.module('crudApp',[]);
 
 app.controller('CrudController', function($scope,$http) {
 	
-	$scope.mode = 'add';
-
-	var user = {};
-	user.id = "";
-	user.loginId = "";
-	user.firstName = "";
-	user.lastName = "";
-	user.password = "";
-	user.retypepassword = "";
-	user.email = "";
+	init();
 	
-    $scope.user = user;
-    
+	function init() {
+		
+	  $scope.mode = '{{mode}}';
+
+	  var user = {};
+	  user.id = '{{user.id}}';
+	  user.loginId = '{{user.login_id}}';
+	  user.firstName = '{{user.first_name}}';
+	  user.lastName = '{{user.last_name}}';
+	  user.password = '{{user.password}}';
+	  user.retypepassword = '{{user.password}}';
+	  user.email = '{{user.email}}';
+	
+      $scope.user = user;
+	};
+	
+	
 	$scope.submit = function() {
 
 	  $scope.registerForm.submitClicked = true;
@@ -80,51 +88,67 @@ app.controller('CrudController', function($scope,$http) {
 	  
 	  var config =  { headers : {'Accept':'application/json',
 		                         'Content-Type':'application/x-www-form-urlencoded'}};
-			  
-	  if($scope.mode = 'add') {
-	    $scope.add(postData,config);
+		  
+	  if($scope.mode == 'add') {
+	    add(postData,config);
 	  } else if($scope.mode == 'edit') {
-		$scope.update(postData,config);
+		update(postData,config);
 	  }  
 	        
 	}; // submit function
 	  	
 	
-	$scope.add = function(postData,config) {
+	function add(postData,config) {
 			   
-	   $http.post('/demo/api/v1/users',jQuery.param(postData),config)
-		  
-	      .success(function(data,header,status,config) 
-	      {
-		      alert('User has been added.');
-		      $scope.id = data.id;
-		      $scope.mode = 'edit';	 
-		      $scope.submitClicked = false;
-		  })
-		  .error(function(data,header,status,config) 
-		  {
-		      alert('An error has occurred.');
-		      if(data.status == 'fielderrors') {
-		    	  for(var field in data.errors) {
-		      	      if(field == 'loginId' && data.errors[field] == 'duplicate') {
-		      			$scope.errorLoginId = 'Login Id already in use.'; 
-		    		  }
-		      	      if(field == 'email' && data.errors[field] == 'duplicate') {
-		      			$scope.errorEmail = 'Email already in use.'; 
-		    		  }
-		      	  }
-		      }
-				  
-	      });
-	};
-	
-	
-	$scope.update = function(postData,config) {
-		// put
+	  $http.post('/demo/api/v1/users', jQuery.param(postData),config)
 		
+	    .success(function(data,header,status,config) 
+	    {
+		  alert('User has been added.');
+		  $scope.user.id = data.id;
+		  $scope.mode = 'edit';	 
+		  $scope.submitClicked = false;
+		})
+		.error(function(data,header,status,config) 
+		{
+		  alert('An error has occurred.');
+		  handleErrors(data);
+		});
+	}; // add function
+	
+	
+	function update(postData,config) {
+		   
+	  $http.put('/demo/api/v1/users/' + $scope.user.id, jQuery.param(postData),config)
+		
+	    .success(function(data,header,status,config) 
+		{
+		  alert('User has been saved.');
+		  $scope.id = data.id;
+		  $scope.submitClicked = false;
+		})
+		.error(function(data,header,status,config) 
+		{
+		  alert('An error has occurred.');
+		  handleErrors(data);	     
+		});
+	}; // update function
+	
+	
+	function handleErrors(data) {
+		
+	  if(data.status == 'fielderrors') {
+	    for(var field in data.errors) {
+	      if(field == 'loginId' && data.errors[field] == 'duplicate') {
+	      	$scope.errorLoginId = 'Login Id already in use.'; 
+	      }
+	      if(field == 'email' && data.errors[field] == 'duplicate') {
+	    	$scope.errorEmail = 'Email already in use.'; 
+	      }
+	    }
+	  }
 	};
-	
-	
+		
 }); //controller
 
 
@@ -148,6 +172,7 @@ app.controller('CrudController', function($scope,$http) {
 	 
 	  <table>
 	      
+	      <!-- Login Id -->
 	      <tr>
 	         <td style="text-align:right">Login Id:</td>
 	         <td><input name="loginId" 
@@ -155,15 +180,15 @@ app.controller('CrudController', function($scope,$http) {
 	                    ng-model="user.loginId" 
 	                    required/></td>
 	      </tr>
-	      
-	      
 	      <tr ng-show="registerForm.submitClicked && registerForm.loginId.$error.required">
 		    <td></td><td class="error">Field is required.</td>
 		  </tr>
 		  <tr ng-show="registerForm.submitClicked && errorLoginId">
 		    <td></td><td class="error">{{errorLoginId}}</td>
 		  </tr>
-		   	            
+		  
+		  
+		  <!--  First Name --> 	            
 	      <tr>
 	         <td style="text-align:right">First Name:</td>
 	         <td><input name="firstName" 
@@ -174,7 +199,9 @@ app.controller('CrudController', function($scope,$http) {
 	      <tr ng-show="registerForm.submitClicked && registerForm.firstName.$error.required">
 		    <td></td><td class="error">Field is required.</td>
 		  </tr>
-	      
+
+
+          <!-- Last Name -->	      
 	      <tr>
 	        <td style="text-align:right">Last Name:</td>
 	        <td><input name="lastName" 
@@ -182,11 +209,12 @@ app.controller('CrudController', function($scope,$http) {
 	                   ng-model="user.lastName"
 	                   required /></td>
 	      </tr>
-	            
 	      <tr ng-show="registerForm.submitClicked && registerForm.lastName.$error.required">
 		    <td></td><td class="error">Field is required.</td>
 		  </tr>
-		         
+		
+		
+		  <!-- Password -->         
 	      <tr>
 	        <td style="text-align:right">Password:</td>
 	        <td><input name="password" 
@@ -194,11 +222,12 @@ app.controller('CrudController', function($scope,$http) {
 	                   ng-model="user.password"
 	                   required /></td>
 	      </tr>
-	      
 	      <tr ng-show="registerForm.submitClicked && registerForm.password.$error.required">
 		    <td></td><td class="error">Field is required.</td>
 		  </tr>
+		 
 		  
+		  <!-- Re-type password  -->
 		  <tr>
 	        <td style="text-align:right">Re-Type Password:</td>
 	        <td><input name="retype" 
@@ -206,15 +235,15 @@ app.controller('CrudController', function($scope,$http) {
 	                   ng-model="user.retype"
 	                   required /></td>
 	      </tr>
-	      
 	      <tr ng-show="registerForm.submitClicked && registerForm.retype.$error.required">
 		    <td></td><td class="error">Field is required.</td>
 		  </tr>
-		  
 		  <tr ng-show="registerForm.submitClicked && errorRetype">
 		    <td></td><td class="error">{{errorRetype}}</td>
 		  </tr>
-		  
+		 
+		 
+		  <!--  Email  --> 
 	      <tr>
 	        <td style="text-align:right">Email:</td>
 	        <td><input name="email" 
@@ -222,8 +251,7 @@ app.controller('CrudController', function($scope,$http) {
 	                   ng-model="user.email"
 	                   required /></td>
 	      </tr>
-	      
-		  <tr ng-show="registerForm.submitClicked && registerForm.email.$error.required">
+	      <tr ng-show="registerForm.submitClicked && registerForm.email.$error.required">
 		    <td></td><td class="error">Field is required.</td>
 		  </tr>
 		  <tr ng-show="registerForm.submitClicked && registerForm.email.$error.email">
@@ -235,9 +263,9 @@ app.controller('CrudController', function($scope,$http) {
 		  
 	    </table>
 	    
-	     <button>Submit</button>
+	   <button>Submit</button>
 	     
-	  </form>
+	</form>
 	    
 	    
  </div>

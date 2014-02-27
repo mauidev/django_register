@@ -7,8 +7,9 @@ Created on Oct 2, 2013
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
+from django.shortcuts import render_to_response
 
-
+from registerweb.models import User
 
 
 class LoginPage(APIView):
@@ -26,9 +27,9 @@ class RegisterPage(APIView):
     
     def get(self, request):
         """ Return a page for user registration. """
-        # determine if add/edit mode
-        # if edit mode, load user object
-        return Response(template_name='register.html')        
+        user = User()
+        return render_to_response('register.html',{'user':user,'mode':'add'})
+                
     
         
 class LandingPage(APIView):
