@@ -1,6 +1,15 @@
 
-How to run the application
+Django REST demo using Angular JS
+
+This sample project provides a crud application, the registration of users, as an
+example of how a rest api and an angular js client work together.
+
+
+
+How to start the application
 ==========================================
+
+Starting from the root directory:
 
 cd register
 manage.py runserver
