@@ -6,9 +6,11 @@
 
 {% load staticfiles %}
 
-<link   type="text/css" href="{% static "registerweb/css/jquery-ui-1.8.9.custom.css" %}" rel="Stylesheet" />	
 <script type="text/javascript" src="{% static "registerweb/js/angular.js" %}"></script>
 <script type="text/javascript" src="{% static "registerweb/js/jquery-1.4.4.min.js" %}"></script>
+
+<script type="text/javascript" src="{% static "registerweb/js/controllers.js" %}"></script>
+
 
 
 <style>
@@ -33,125 +35,15 @@
  
 <script>
 
-
-
-var app = angular.module('crudApp',[]);
-
-app.controller('CrudController', function($scope,$http) {
-	
-	init();
-	
-	function init() {
-		
-	  $scope.mode = '{{mode}}';
-
-	  var user = {};
-	  user.id = '{{user.id}}';
-	  user.loginId = '{{user.login_id}}';
-	  user.firstName = '{{user.first_name}}';
-	  user.lastName = '{{user.last_name}}';
-	  user.password = '{{user.password}}';
-	  user.retypepassword = '{{user.password}}';
-	  user.email = '{{user.email}}';
-	
-      $scope.user = user;
-	};
-	
-	
-	$scope.submit = function() {
-
-	  $scope.registerForm.submitClicked = true;
-	  
-	  //clear errors
-	  $scope.errorRetype = null;
-	  $scope.errorLoginId = null;
-	  $scope.errorEmail = null;
-	   
-	  // verify that the passwords match
-	  if($scope.user.password && $scope.user.retype) { 
-		  if($scope.user.password != $scope.user.retype) {
-		    $scope.errorRetype = 'Passwords do not match.';
-		    return;
-		  }  
-	  }
-	  
-	  if($scope.registerForm.$invalid) {
-		  alert('You have errors.');
-		  return;
-	  } 
-	  
-	  var postData = { login_id   : $scope.user.loginId,
-			           first_name : $scope.user.firstName,
-			           last_name  : $scope.user.lastName,
-			           password   : $scope.user.password,
-			           email      : $scope.user.email };
-	  
-	  var config =  { headers : {'Accept':'application/json',
-		                         'Content-Type':'application/x-www-form-urlencoded'}};
-		  
-	  if($scope.mode == 'add') {
-	    add(postData,config);
-	  } else if($scope.mode == 'edit') {
-		update(postData,config);
-	  }  
-	        
-	}; // submit function
-	  	
-	
-	function add(postData,config) {
-			   
-	  $http.post('/demo/api/v1/users', jQuery.param(postData),config)
-		
-	    .success(function(data,header,status,config) 
-	    {
-		  alert('User has been added.');
-		  $scope.user.id = data.id;
-		  $scope.mode = 'edit';	 
-		  $scope.submitClicked = false;
-		})
-		.error(function(data,header,status,config) 
-		{
-		  alert('An error has occurred.');
-		  handleErrors(data);
-		});
-	}; // add function
-	
-	
-	function update(postData,config) {
-		   
-	  $http.put('/demo/api/v1/users/' + $scope.user.id, jQuery.param(postData),config)
-		
-	    .success(function(data,header,status,config) 
-		{
-		  alert('User has been saved.');
-		  $scope.id = data.id;
-		  $scope.submitClicked = false;
-		})
-		.error(function(data,header,status,config) 
-		{
-		  alert('An error has occurred.');
-		  handleErrors(data);	     
-		});
-	}; // update function
-	
-	
-	function handleErrors(data) {
-		
-	  if(data.status == 'fielderrors') {
-	    for(var field in data.errors) {
-	      if(field == 'loginId' && data.errors[field] == 'duplicate') {
-	      	$scope.errorLoginId = 'Login Id already in use.'; 
-	      }
-	      if(field == 'email' && data.errors[field] == 'duplicate') {
-	    	$scope.errorEmail = 'Email already in use.'; 
-	      }
-	    }
-	  }
-	};
-		
-}); //controller
-
-
+window.user = { id : '{{user.id}}',
+                loginId : '{{user.login_id}}',
+                firstName : '{{user.first_name}}',
+                lastName : '{{user.last_name}}',
+                password : '{{user.password}}',
+                retypepassword : '{{user.password}}',
+                email : '{{user.email}}'
+              };
+window.mode = '{{mode}}';
 
 </script>
 
