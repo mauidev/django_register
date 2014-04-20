@@ -1,19 +1,37 @@
 
 Django REST demo using Angular JS
+==============================================================================
 
 This sample project provides a crud application, the registration of users, as an
 example of how a rest api and an angular js client work together.
 
+Instead of a pure SPA client app, the register.html page is tokenized by the django
+template engine before rendering on the browser. All interactions are then done using
+ajax requests using the Angular's $http service.
+
+The goal of this approach is to show what a hybrid design would look like and provides
+an alternative to everything being done on the client side, ie, first show the page
+by having the server generate it.
+
+
+
+Dependencies
+==============================================================================
+This demo project was developed using the following versions:
+
+django 1.5.2
+python 2.7.5
+
+It's suggested that you install django in a virtualenv environment.
 
 
 How to start the application
-==========================================
+==============================================================================
 
-Starting from the root directory:
+Starting from the root project directory:
 
 cd register
 manage.py runserver
-
 
 Point browser to localhost:8000/demo/login.
 
