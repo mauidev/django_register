@@ -6,8 +6,7 @@ This sample project provides a crud application, the registration of users, as a
 
 Instead of a pure SPA client app, the register.html page is tokenized by the django template engine before rendering on the browser. All interactions are then done using ajax requests using the Angular's $http service.
 
-The goal of this approach is to show what a hybrid design would look like and provides an alternative to everything being done on the client side, ie, first show the age
-by having the server generate it.
+The goal of this approach is to show what a hybrid design would look like and provides an alternative to everything being done on the client side, ie, first show the page by having the server generate it.
 
 
 
